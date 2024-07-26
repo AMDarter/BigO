@@ -155,3 +155,70 @@ $arr = mergeSort($arr);
 echo "O(n log n) Example: ";
 print_r($arr); // Outputs [1, 2, 3, 4, 5, 6, 7, 8]
 
+// ----------------------------------------------------------
+// Exponential Time - O(2^n)
+// Traveling Salesman Problem (TSP) - Brute Force Approach
+
+/**
+ * Solve the Traveling Salesman Problem (TSP) using a brute force approach.
+ *
+ * @param array $distances A 2D array representing the distances between cities.
+ * @return array An associative array containing the best path and the minimum path cost.
+ */
+function traveling_salesman($distances) {
+    $num_cities = count($distances);
+    $cities = range(0, $num_cities - 1);
+    $min_path_cost = PHP_INT_MAX;
+    $best_path = null;
+
+    $permutations = permutations($cities);
+
+    foreach ($permutations as $perm) {
+        $current_cost = 0;
+        for ($i = 0; $i < $num_cities - 1; $i++) {
+            $current_cost += $distances[$perm[$i]][$perm[$i + 1]];
+        }
+        $current_cost += $distances[$perm[$num_cities - 1]][$perm[0]]; // Return to start city
+
+        if ($current_cost < $min_path_cost) {
+            $min_path_cost = $current_cost;
+            $best_path = $perm;
+        }
+    }
+
+    return ['best_path' => $best_path, 'min_path_cost' => $min_path_cost];
+}
+
+/**
+ * Generate all permutations of an array.
+ *
+ * @param array $elements The array for which to generate permutations.
+ * @return array An array of all permutations of the input array.
+ */
+function permutations($elements) {
+    if (count($elements) <= 1) {
+        return [$elements];
+    }
+
+    $result = [];
+    foreach ($elements as $key => $element) {
+        $remaining_elements = array_values(array_diff_key($elements, [$key => $element]));
+        foreach (permutations($remaining_elements) as $permutation) {
+            $result[] = array_merge([$element], $permutation);
+        }
+    }
+
+    return $result;
+}
+
+// Example distance matrix (symmetric TSP)
+$distances = [
+    [0, 10, 15, 20],
+    [10, 0, 35, 25],
+    [15, 35, 0, 30],
+    [20, 25, 30, 0]
+];
+
+$result = traveling_salesman($distances);
+echo "Best path: " . implode(' -> ', $result['best_path']) . "\n";
+echo "Minimum path cost: " . $result['min_path_cost'] . "\n";
